@@ -58,6 +58,16 @@ export class StorageService {
         await vscode.workspace.getConfiguration('codeAnalyzer').update('autoAnalyze', autoAnalyze, true);
     }
 
+    getProvider(): string {
+        return this.context.globalState.get('codeAnalyzer.provider', 'openai') || 
+               vscode.workspace.getConfiguration('codeAnalyzer.ai').get('provider', 'openai');
+    }
+
+    async setProvider(provider: string): Promise<void> {
+        await this.context.globalState.update('codeAnalyzer.provider', provider);
+        await vscode.workspace.getConfiguration('codeAnalyzer.ai').update('provider', provider, true);
+    }
+
     async getChatHistory(): Promise<any[]> {
         return this.context.globalState.get('codeAnalyzer.chatHistory', []);
     }
@@ -93,6 +103,7 @@ export class StorageService {
     async getUserSettings(): Promise<UserSettings> {
         return {
             apiKey: this.getApiKey(),
+            provider: this.getProvider(),
             model: this.getModel(),
             temperature: this.getTemperature(),
             maxTokens: this.getMaxTokens(),
@@ -103,6 +114,9 @@ export class StorageService {
     async updateUserSettings(settings: Partial<UserSettings>): Promise<void> {
         if (settings.apiKey !== undefined) {
             await this.setApiKey(settings.apiKey);
+        }
+        if (settings.provider !== undefined) {
+            await this.setProvider(settings.provider);
         }
         if (settings.model !== undefined) {
             await this.setModel(settings.model);

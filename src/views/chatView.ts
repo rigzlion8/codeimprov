@@ -48,14 +48,49 @@ export class ChatView {
         <html>
         <head>
             <style>
-                body { 
-                    font-family: var(--vscode-font-family); 
+                body {
+                    font-family: var(--vscode-font-family);
                     padding: 0;
                     margin: 0;
                     height: 100vh;
                     display: flex;
                     flex-direction: column;
                     color: var(--vscode-foreground);
+                }
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 15px 20px;
+                    border-bottom: 1px solid var(--vscode-input-border);
+                    background: var(--vscode-editor-background);
+                }
+                .header-title {
+                    font-size: 16px;
+                    font-weight: 600;
+                }
+                .settings-button {
+                    background: none;
+                    border: none;
+                    color: var(--vscode-foreground);
+                    cursor: pointer;
+                    padding: 8px;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background-color 0.2s;
+                }
+                .settings-button:hover {
+                    background: var(--vscode-toolbar-hoverBackground);
+                }
+                .settings-button:active {
+                    background: var(--vscode-toolbar-activeBackground);
+                }
+                .settings-icon {
+                    width: 16px;
+                    height: 16px;
+                    opacity: 0.8;
                 }
                 .chat-container {
                     flex: 1;
@@ -125,6 +160,15 @@ export class ChatView {
             </style>
         </head>
         <body>
+            <div class="header">
+                <div class="header-title">AI Code Assistant</div>
+                <button class="settings-button" id="settingsButton" title="AI Profile Settings">
+                    <svg class="settings-icon" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 3a5 5 0 1 0 0 10A5 5 0 0 0 8 3zm0 1a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+                    </svg>
+                </button>
+            </div>
+            
             <div class="chat-container" id="chatContainer">
                 ${chatHistory.map(msg => `
                     <div class="message ${msg.role}-message">
@@ -146,6 +190,7 @@ export class ChatView {
                 const messageInput = document.getElementById('messageInput');
                 const sendButton = document.getElementById('sendButton');
                 const clearButton = document.getElementById('clearButton');
+                const settingsButton = document.getElementById('settingsButton');
                 
                 function scrollToBottom() {
                     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -207,6 +252,12 @@ export class ChatView {
                         });
                     }
                 });
+
+                settingsButton.addEventListener('click', () => {
+                    vscode.postMessage({
+                        command: 'openSettings'
+                    });
+                });
                 
                 // Handle incoming messages from extension
                 window.addEventListener('message', (event) => {
@@ -251,6 +302,10 @@ export class ChatView {
                 
             case 'clearChat':
                 await this.clearChat();
+                break;
+                
+            case 'openSettings':
+                await this.openSettings();
                 break;
         }
     }
@@ -301,5 +356,9 @@ export class ChatView {
                 type: 'clearChat'
             });
         }
+    }
+
+    private async openSettings(): Promise<void> {
+        await vscode.commands.executeCommand('codeAnalyzer.openProfile');
     }
 }

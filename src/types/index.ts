@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 export interface AIModel {
     id: string;
     name: string;
-    provider: 'openai' | 'anthropic' | 'custom';
+    provider: 'openai' | 'anthropic' | 'deepseek' | 'custom';
     maxTokens: number;
 }
 
@@ -46,6 +46,7 @@ export interface CodeMetrics {
 
 export interface UserSettings {
     apiKey: string;
+    provider: string;
     model: string;
     temperature: number;
     maxTokens: number;
