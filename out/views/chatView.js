@@ -1,48 +1,53 @@
-import * as vscode from 'vscode';
-import { ChatProvider } from '../providers/chatProvider';
-import { CodeContext } from '../types/index';
-
-export class ChatView {
-    private panel: vscode.WebviewPanel | undefined;
-    private chatProvider: ChatProvider;
-
-    constructor(chatProvider: ChatProvider) {
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChatView = void 0;
+const vscode = __importStar(require("vscode"));
+class ChatView {
+    constructor(chatProvider) {
         this.chatProvider = chatProvider;
     }
-
-    async show(): Promise<void> {
+    async show() {
         if (this.panel) {
             this.panel.reveal();
             return;
         }
-
-        this.panel = vscode.window.createWebviewPanel(
-            'codeAnalyzerChat',
-            'AI Code Assistant',
-            vscode.ViewColumn.Two,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true
-            }
-        );
-
+        this.panel = vscode.window.createWebviewPanel('codeAnalyzerChat', 'AI Code Assistant', vscode.ViewColumn.Two, {
+            enableScripts: true,
+            retainContextWhenHidden: true
+        });
         this.panel.webview.html = await this.getWebviewContent();
-        
-        this.panel.webview.onDidReceiveMessage(
-            async (message: any) => {
-                await this.handleWebviewMessage(message);
-            },
-            undefined
-        );
-
+        this.panel.webview.onDidReceiveMessage(async (message) => {
+            await this.handleWebviewMessage(message);
+        }, undefined);
         this.panel.onDidDispose(() => {
             this.panel = undefined;
         });
     }
-
-    private async getWebviewContent(): Promise<string> {
+    async getWebviewContent() {
         const chatHistory = this.chatProvider.getChatHistory();
-
         return `
         <!DOCTYPE html>
         <html>
@@ -234,37 +239,31 @@ export class ChatView {
         </body>
         </html>`;
     }
-
-    private formatMessageContent(content: string): string {
+    formatMessageContent(content) {
         // Format code blocks and other markdown-like syntax
         return content
             .replace(/```([\s\S]*?)```/g, '<div class="code-block">$1</div>')
             .replace(/`([^`]+)`/g, '<code>$1</code>')
             .replace(/\n/g, '<br>');
     }
-
-    private async handleWebviewMessage(message: any): Promise<void> {
+    async handleWebviewMessage(message) {
         switch (message.command) {
             case 'sendMessage':
                 await this.sendMessage(message.message);
                 break;
-                
             case 'clearChat':
                 await this.clearChat();
                 break;
         }
     }
-
-    private async sendMessage(message: string): Promise<void> {
+    async sendMessage(message) {
         try {
             const editor = vscode.window.activeTextEditor;
-            let context: CodeContext | undefined;
-
+            let context;
             if (editor) {
                 const document = editor.document;
                 const selection = editor.selection;
                 const selectedText = document.getText(selection);
-
                 context = {
                     filePath: document.fileName,
                     language: document.languageId,
@@ -272,9 +271,7 @@ export class ChatView {
                     codeSnippet: selectedText || document.getText()
                 };
             }
-
             const response = await this.chatProvider.sendMessage(message, context);
-            
             if (this.panel) {
                 this.panel.webview.postMessage({
                     type: 'newMessage',
@@ -283,7 +280,8 @@ export class ChatView {
                     timestamp: new Date()
                 });
             }
-        } catch (error: any) {
+        }
+        catch (error) {
             if (this.panel) {
                 this.panel.webview.postMessage({
                     type: 'error',
@@ -292,10 +290,8 @@ export class ChatView {
             }
         }
     }
-
-    private async clearChat(): Promise<void> {
+    async clearChat() {
         await this.chatProvider.clearChat();
-        
         if (this.panel) {
             this.panel.webview.postMessage({
                 type: 'clearChat'
@@ -303,3 +299,5 @@ export class ChatView {
         }
     }
 }
+exports.ChatView = ChatView;
+//# sourceMappingURL=chatView.js.map

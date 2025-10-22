@@ -1,50 +1,55 @@
-import * as vscode from 'vscode';
-import { StorageService } from '../services/storageService';
-import { AIService } from '../services/aiService';
-import { UserSettings } from '../types/index';
-
-export class ProfileView {
-    private panel: vscode.WebviewPanel | undefined;
-
-    constructor(
-        private storageService: StorageService,
-        private aiService: AIService
-    ) {}
-
-    async show(): Promise<void> {
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProfileView = void 0;
+const vscode = __importStar(require("vscode"));
+class ProfileView {
+    constructor(storageService, aiService) {
+        this.storageService = storageService;
+        this.aiService = aiService;
+    }
+    async show() {
         if (this.panel) {
             this.panel.reveal();
             return;
         }
-
-        this.panel = vscode.window.createWebviewPanel(
-            'codeAnalyzerProfile',
-            'AI Profile Settings',
-            vscode.ViewColumn.One,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true
-            }
-        );
-
+        this.panel = vscode.window.createWebviewPanel('codeAnalyzerProfile', 'AI Profile Settings', vscode.ViewColumn.One, {
+            enableScripts: true,
+            retainContextWhenHidden: true
+        });
         this.panel.webview.html = await this.getWebviewContent();
-        
-        this.panel.webview.onDidReceiveMessage(
-            async (message: any) => {
-                await this.handleWebviewMessage(message);
-            },
-            undefined
-        );
-
+        this.panel.webview.onDidReceiveMessage(async (message) => {
+            await this.handleWebviewMessage(message);
+        }, undefined);
         this.panel.onDidDispose(() => {
             this.panel = undefined;
         });
     }
-
-    private async getWebviewContent(): Promise<string> {
+    async getWebviewContent() {
         const settings = await this.storageService.getUserSettings();
         const isConfigured = this.aiService.isConfigured();
-
         return `
         <!DOCTYPE html>
         <html>
@@ -186,64 +191,56 @@ export class ProfileView {
         </body>
         </html>`;
     }
-
-    private async handleWebviewMessage(message: any): Promise<void> {
+    async handleWebviewMessage(message) {
         switch (message.command) {
             case 'saveSettings':
                 await this.saveSettings(message.settings);
                 break;
-                
             case 'testConnection':
                 await this.testConnection();
                 break;
-                
             case 'clearData':
                 await this.clearData();
                 break;
         }
     }
-
-    private async saveSettings(settings: any): Promise<void> {
+    async saveSettings(settings) {
         try {
             await this.storageService.updateUserSettings(settings);
-            
             // Update AI service with new API key
             if (settings.apiKey) {
                 await this.aiService.updateApiKey(settings.apiKey);
             }
-            
             this.showStatus('Settings saved successfully!', 'success');
-        } catch (error: any) {
+        }
+        catch (error) {
             this.showStatus(`Failed to save settings: ${error.message}`, 'error');
         }
     }
-
-    private async testConnection(): Promise<void> {
+    async testConnection() {
         try {
             if (!this.aiService.isConfigured()) {
                 throw new Error('Please save your API key first');
             }
-            
             this.showStatus('Testing connection...', 'warning');
-            
             // The API key validation happens in the AIService constructor
             // If we reach here without error, the connection is valid
             this.showStatus('Connection test successful!', 'success');
-        } catch (error: any) {
+        }
+        catch (error) {
             this.showStatus(`Connection test failed: ${error.message}`, 'error');
         }
     }
-
-    private async clearData(): Promise<void> {
+    async clearData() {
         try {
             await this.storageService.clearChatHistory();
             this.showStatus('All data cleared successfully!', 'success');
-        } catch (error: any) {
+        }
+        catch (error) {
             this.showStatus(`Failed to clear data: ${error.message}`, 'error');
         }
     }
-
-    private showStatus(text: string, status: 'success' | 'error' | 'warning'): void {
+    showStatus(text, status) {
         if (this.panel) {
             this.panel.webview.postMessage({
                 type: 'status',
@@ -253,3 +250,5 @@ export class ProfileView {
         }
     }
 }
+exports.ProfileView = ProfileView;
+//# sourceMappingURL=profileView.js.map

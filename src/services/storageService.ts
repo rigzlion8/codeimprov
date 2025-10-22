@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { UserSettings, AIModel } from '../types';
+import { UserSettings, AIModel } from '../types/index';
 
 export class StorageService {
     private context: vscode.ExtensionContext;

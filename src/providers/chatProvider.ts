@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { AIService } from '../services/aiService';
 import { StorageService } from '../services/storageService';
-import { ChatMessage, CodeContext } from '../types';
+import { ChatMessage, CodeContext } from '../types/index';
 
 export class ChatProvider implements vscode.TreeDataProvider<ChatItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<ChatItem | undefined | null | void> = new vscode.EventEmitter<ChatItem | undefined | null | void>();

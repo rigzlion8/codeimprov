@@ -1,3 +1,5 @@
+import * as vscode from 'vscode';
+
 export interface AIModel {
     id: string;
     name: string;
@@ -16,7 +18,7 @@ export interface ChatMessage {
 export interface CodeContext {
     filePath?: string;
     language?: string;
-    selection?: vscode.Selection;
+    selection?: any; // vscode.Selection type
     codeSnippet?: string;
 }
 
@@ -53,6 +55,6 @@ export interface UserSettings {
 export interface DiffChange {
     original: string;
     modified: string;
-    range: vscode.Range;
+    range: any; // vscode.Range type
     description: string;
 }
