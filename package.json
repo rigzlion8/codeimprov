@@ -1,0 +1,116 @@
+{
+  "name": "code-analyzer-ai",
+  "displayName": "Code Analyzer AI",
+  "description": "AI-powered code analysis, editing, and improvement suggestions",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codeAnalyzer.openProfile",
+        "title": "Open AI Profile Settings",
+        "category": "Code Analyzer AI"
+      },
+      {
+        "command": "codeAnalyzer.openChat",
+        "title": "Open AI Chat",
+        "category": "Code Analyzer AI"
+      },
+      {
+        "command": "codeAnalyzer.analyzeCode",
+        "title": "Analyze Current Code",
+        "category": "Code Analyzer AI"
+      },
+      {
+        "command": "codeAnalyzer.suggestImprovements",
+        "title": "Suggest Improvements",
+        "category": "Code Analyzer AI"
+      }
+    ],
+    "configuration": {
+      "title": "Code Analyzer AI",
+      "properties": {
+        "codeAnalyzer.ai.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API Key"
+        },
+        "codeAnalyzer.ai.model": {
+          "type": "string",
+          "default": "gpt-4",
+          "description": "AI Model to use",
+          "enum": [
+            "gpt-4",
+            "gpt-4-turbo",
+            "gpt-3.5-turbo"
+          ]
+        },
+        "codeAnalyzer.ai.temperature": {
+          "type": "number",
+          "default": 0.3,
+          "description": "AI Temperature (0-1)"
+        },
+        "codeAnalyzer.autoAnalyze": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-analyze code on file change"
+        },
+        "codeAnalyzer.maxTokens": {
+          "type": "number",
+          "default": 2000,
+          "description": "Maximum tokens for AI responses"
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "codeAnalyzerChat",
+          "name": "AI Code Assistant",
+          "when": "codeAnalyzer.enabled"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "codeAnalyzerChat",
+        "contents": "Welcome to AI Code Assistant!\n[Open Settings](command:codeAnalyzer.openProfile)\n[Start Chat](command:codeAnalyzer.openChat)"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
+    "typescript": "^4.9.4",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "ts-loader": "^9.4.2"
+  },
+  "dependencies": {
+    "axios": "^1.3.4",
+    "openai": "^3.2.1"
+  }
+}
